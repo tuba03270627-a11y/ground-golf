@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root{
     --bg:#f5f1e8; --surface:#ffffff; --surface-2:#faf7f0;
@@ -319,6 +320,7 @@
   <div class="appbar-main">
     <button id="hdrLeft" class="hdr-btn hdr-left" style="display:none;">← もどる</button>
     <div id="hdrTitle" class="hdr-title">⛳ グラウンド・ゴルフ 記録</div>
+    <button id="hdrHelp" class="hdr-btn" style="display:none;" onclick="nav('help')">❓ 使い方</button>
     <button id="hdrRight" class="hdr-btn hdr-right" style="display:none;">⚙️ 設定</button>
   </div>
   <div id="stepTabs" class="steptabs" style="display:none;">
@@ -357,6 +359,16 @@
         <span class="hub-tx"><b>賞の表示設定</b><small>順位の表示数・ダイヤモンド賞・HIO賞</small></span>
         <span class="hub-arrow">›</span>
       </button>
+      <button class="hub-row" onclick="openAppShare()">
+        <span class="hub-ic">📲</span>
+        <span class="hub-tx"><b>みんなにアプリを送る</b><small>QRコード・LINE・URLコピー</small></span>
+        <span class="hub-arrow">›</span>
+      </button>
+      <button class="hub-row" onclick="nav('help')">
+        <span class="hub-ic">❓</span>
+        <span class="hub-tx"><b>使い方ガイド</b><small>はじめての方はこちら</small></span>
+        <span class="hub-arrow">›</span>
+      </button>
     </div>
     <p class="hub-note">ここは最初に一度だけ設定すればOKです。ふだんは開かなくて大丈夫です。</p>
   </div>
@@ -372,6 +384,7 @@
     </div>
     <div class="card">
       <div class="card-title">登録済みの人 <span id="memberCount" class="muted"></span></div>
+      <p class="muted" style="margin:-4px 0 12px;">📊 名前をタップすると、その人の成績（参加回数・平均・ベスト・推移）が見られます。</p>
       <div id="masterList" class="list"></div>
     </div>
   </div>
@@ -416,6 +429,7 @@
         <div id="pChips" class="chips"></div>
       </div>
       <button class="btn-big" onclick="showSub('scores')">成績入力にすすむ ＞</button>
+      <button class="btn-outline btn-block" style="margin-top:18px;color:var(--danger);border-color:#f0c8c2;" onclick="deleteGame()">🗑 この大会を削除する</button>
     </div>
 
     <div id="v-scores" class="subview">
@@ -450,6 +464,44 @@
 
   <!-- 個人成績 -->
   <div id="view-stats" class="view"><div id="statsBox"></div></div>
+
+  <!-- 使い方ガイド -->
+  <div id="view-help" class="view">
+    <div class="card">
+      <div class="card-title">⛳ このアプリでできること</div>
+      <p style="margin:0;">グラウンド・ゴルフの大会の成績を記録して、順位や賞を自動で計算します。過去の記録も残るので、一人ひとりの成績の移り変わりも見られます。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏆 大会の記録のやり方（4ステップ）</div>
+      <p><b>① 大会をつくる</b><br>ホーム右下の「＋ 新しい大会」を押して、大会名と日付を入れます。</p>
+      <p><b>② 参加者を選ぶ</b><br>「①設定・参加者」の画面で「📋 名簿から選ぶ」を押し、来た人にチェックを入れます。当日の飛び入りは名前を打って「追加」。</p>
+      <p><b>③ 成績を入力する</b><br>「②成績入力」で、1人ずつ大きな数字ボタンで打数を入力。ホールインワンは「＋」で回数を足します。打数は<b>引き算する前の数字</b>でOK（マイナスは自動計算）。</p>
+      <p style="margin-bottom:0;"><b>④ 集計して結果を見る</b><br>「集計して結果を見る」を押すと、順位・賞が自動で出ます。印刷やLINE共有もできます。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 個人の成績を見る</div>
+      <p style="margin:0;">「⚙️設定 → 名簿の管理」で<b>名前をタップ</b>すると、その人の参加回数・平均打数・ベスト・成績の推移が見られます。結果発表の画面でも、<b>名前をタップ</b>すると同じ成績が開きます。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚙️ 名簿・賞の設定</div>
+      <p style="margin:0;">右上の「⚙️設定」から、名簿の追加・削除や、順位を何位まで表示するか・ダイヤモンド賞やホールインワン賞を出すかを設定できます。最初に一度だけ設定すればOKです。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📲 みんなにアプリを送る</div>
+      <p style="margin:0;">「⚙️設定 → みんなにアプリを送る」で、QRコードやLINEで、このアプリを仲間に共有できます。受け取った人は、開いて「ホーム画面に追加」すればアプリのように使えます。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗑 大会を消したいとき</div>
+      <p style="margin:0;">消したい大会を開いて「①設定・参加者」の一番下、「🗑 この大会を削除する」から消せます（確認が出ます）。</p>
+    </div>
+
+    <button class="btn-big" onclick="nav('home')">大会一覧にもどる</button>
+  </div>
 </div>
 
 <!-- 新規大会モーダル -->
@@ -466,11 +518,25 @@
 </div>
 
 <!-- 名簿選択モーダル -->
-<div class="overlay" id="poolModal">
-  <div class="modal">
+<div class="overlay" id="poolModal">  <div class="modal">
     <h3>名簿から参加者を選ぶ</h3>
     <div id="poolList"></div>
     <div class="modal-actions"><button class="btn btn-block" onclick="closeModals()">選択おわり</button></div>
+  </div>
+</div>
+
+<!-- アプリ共有モーダル -->
+<div class="overlay" id="shareAppModal">
+  <div class="modal">
+    <h3>みんなにアプリを送る</h3>
+    <p class="muted" style="margin:-6px 0 4px;">下のQRコードを読み取るか、URLを送ると、みんながこのアプリを開けます。</p>
+    <div id="qrbox" style="display:flex; justify-content:center; margin:16px 0;"></div>
+    <div id="appUrlText" style="background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:12px; font-size:13px; word-break:break-all; text-align:center;"></div>
+    <div class="share" style="margin-top:16px;">
+      <button class="sh-line" onclick="shareApp()">💬 LINEなどで送る</button>
+      <button class="sh-img" onclick="copyAppUrl()">🔗 URLをコピーする</button>
+    </div>
+    <div class="modal-actions"><button class="btn-outline btn-block" onclick="closeModals()">閉じる</button></div>
   </div>
 </div>
 
@@ -487,6 +553,7 @@ let personIdx = 0;
 let activeCell = 0;
 let allScores = null;       // 個人成績用の全スコアキャッシュ
 let lastResults = [];       // 共有テキスト用
+let statsFrom = 'master';   // 個人成績を開いた元の画面
 
 /* ---------- 画面の共通処理 ---------- */
 const $ = id => document.getElementById(id);
@@ -543,11 +610,12 @@ function nav(screen){
 }
 
 function renderHeader(screen){
-  const L=$('hdrLeft'), T=$('hdrTitle'), R=$('hdrRight'), ST=$('stepTabs');
-  L.style.display='none'; R.style.display='none'; ST.style.display='none';
+  const L=$('hdrLeft'), T=$('hdrTitle'), R=$('hdrRight'), ST=$('stepTabs'), HP=$('hdrHelp');
+  L.style.display='none'; R.style.display='none'; ST.style.display='none'; HP.style.display='none';
   L.onclick=null; R.onclick=null;
   if(screen==='home'){
-    T.textContent='⛳ グラウンド・ゴルフ 記録';
+    T.textContent='⛳ グラウンド・ゴルフ';
+    HP.style.display='';
     R.style.display=''; R.textContent='⚙️ 設定'; R.onclick=()=>nav('manage');
   }else if(screen==='manage'){
     T.textContent='管理・設定';
@@ -558,14 +626,21 @@ function renderHeader(screen){
   }else if(screen==='awards'){
     T.textContent='賞の表示設定';
     L.style.display=''; L.textContent='← もどる'; L.onclick=()=>nav('manage');
+  }else if(screen==='help'){
+    T.textContent='使い方ガイド';
+    L.style.display=''; L.textContent='← もどる'; L.onclick=()=>nav('home');
   }else if(screen==='stats'){
     T.textContent='個人成績';
-    L.style.display=''; L.textContent='← 名簿'; L.onclick=()=>nav('master');
+    L.style.display=''; L.textContent='← もどる'; L.onclick=()=>nav(statsFrom||'master');
   }else if(screen==='ws'){
     T.textContent=(currentGame && currentGame.title) || '大会';
     L.style.display=''; L.textContent='← 一覧'; L.onclick=()=>backToHome();
     ST.style.display='flex';
   }
+}
+function currentScreen(){
+  const v=document.querySelector('.view.active');
+  return v ? v.id.replace('view-','') : 'home';
 }
 
 function refreshHub(){
@@ -654,6 +729,19 @@ function openWorkspace(id){
 async function backToHome(){
   syncLocal(); await persistGame();
   nav('home'); toast('保存しました');
+}
+async function deleteGame(){
+  if(!currentGame) return;
+  if(!confirm('「'+(currentGame.title||'この大会')+'」を削除します。よろしいですか？\n（この大会の成績も消えます。元にもどせません）')) return;
+  showLoad();
+  try{
+    const {error}=await db.from('games').delete().eq('id',currentGame.id);
+    if(error) throw error;
+    allScores=null;
+    await loadAppData();
+    hideLoad();
+    nav('home'); toast('大会を削除しました');
+  }catch(e){ console.error(e); hideLoad(); toast('削除できませんでした（電波を確認してください）'); }
 }
 
 async function showSub(tab){
@@ -967,7 +1055,7 @@ async function renderResults(){
   sorted.slice(0,Math.min(3,limit)).forEach((p,i)=>{
     h+=`<div class="medal ${medalCls[i]}">
       <div class="rank">${i+1}</div>
-      <div class="who"><div class="nm">${esc(p.fullName)} 様</div>
+      <div class="who"><div class="nm" onclick="openStats('${escq(p.fullName)}')" style="cursor:pointer;">${esc(p.fullName)} 様</div>
         <div class="dt">総打数 ${p.grossScore}打${p.totalHio>0?`　⛳${p.totalHio}回（−${p.totalHio*3}）`:''}</div></div>
       <div class="score"><div class="n">${p.netScore}</div><div class="u">打</div></div>
     </div>`;
@@ -978,7 +1066,7 @@ async function renderResults(){
   if(limit>3 && sorted.length>3){
     h+='<div class="card"><div class="card-title">4位以降</div><div class="rank-list">';
     sorted.slice(3,limit).forEach((p,i)=>{
-      h+=`<div class="rank-row"><div class="r">第${i+4}位</div><div class="n">${esc(p.fullName)} 様</div><div class="s"><b>${p.netScore}</b>打</div></div>`;
+      h+=`<div class="rank-row"><div class="r">第${i+4}位</div><div class="n" onclick="openStats('${escq(p.fullName)}')" style="cursor:pointer;">${esc(p.fullName)} 様 <span style="color:var(--green);font-size:14px;">📊</span></div><div class="s"><b>${p.netScore}</b>打</div></div>`;
     });
     h+='</div></div>';
   }
@@ -1004,6 +1092,7 @@ async function renderResults(){
   }
 
   h+='</div>'; // #resultCapture 終わり
+  h+='<p class="muted" style="text-align:center;margin:4px 0 14px;">📊 名前をタップすると、その人の個人成績が見られます</p>';
   h+=`<div class="share">
     <button class="sh-line" onclick="shareResults()">💬 LINEなどで送る</button>
     <button class="sh-img" onclick="saveResultImage()">🖼️ 画像として保存する</button>
@@ -1041,6 +1130,34 @@ async function saveResultImage(){
   }catch(e){ console.error(e); hideLoad(); toast('画像を作成できませんでした'); }
 }
 
+/* ---------- アプリ自体を共有 ---------- */
+function appUrl(){ return location.origin + location.pathname; }
+function openAppShare(){
+  const url=appUrl();
+  $('appUrlText').textContent=url;
+  const box=$('qrbox'); box.innerHTML='';
+  if(window.QRCode){
+    try{ new QRCode(box, {text:url, width:200, height:200, colorDark:'#155c39', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M}); }
+    catch(e){ box.innerHTML='<p class="muted">QRコードを表示できませんでした</p>'; }
+  }else{
+    box.innerHTML='<p class="muted">QRコードを表示できませんでした（電波を確認してください）</p>';
+  }
+  $('shareAppModal').classList.add('active');
+}
+async function shareApp(){
+  const url=appUrl();
+  const txt='グラウンド・ゴルフ 記録アプリ\n'+url;
+  if(navigator.share){
+    try{ await navigator.share({title:'グラウンド・ゴルフ 記録', text:'グラウンド・ゴルフ 記録アプリ', url}); return; }
+    catch(e){ if(e && e.name==='AbortError') return; }
+  }
+  window.open('https://line.me/R/msg/text/?'+encodeURIComponent(txt), '_blank');
+}
+async function copyAppUrl(){
+  try{ await navigator.clipboard.writeText(appUrl()); toast('URLをコピーしました'); }
+  catch(e){ toast('コピーできませんでした'); }
+}
+
 /* ---------- 個人成績 ---------- */
 async function loadAllScores(force){
   if(allScores && !force) return allScores;
@@ -1050,6 +1167,7 @@ async function loadAllScores(force){
   return allScores;
 }
 async function openStats(name){
+  statsFrom = currentScreen();
   showLoad();
   try{ await loadAllScores(); }
   catch(e){ console.error(e); hideLoad(); toast('成績を読み込めませんでした'); return; }
